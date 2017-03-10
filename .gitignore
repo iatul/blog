@@ -1,0 +1,9 @@
+*.pyc
+add
+blog.egg-info
+*.txt
+.idea
+__pycache__/
+*.logs
+README.rst
+setup.py
