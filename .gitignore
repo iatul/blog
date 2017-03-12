@@ -4,3 +4,4 @@ blog.egg-info
 *.txt
 .idea
 __pycache__
+*/logs

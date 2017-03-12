@@ -1,6 +1,13 @@
-from blog.models.basemodel import (Session, blog, comment)
+import transaction
 from sqlalchemy import desc
 from sqlalchemy.orm import aliased
+from sqlalchemy import exc
+from blog.models.basemodel import (Session, blog, comment)
+from blog.utility.functions import generate_random_string
+from bson import json_util
+import json
+
+json.dumps(anObject, default=json_util.default)
 
 def response_create_blog():
     create_blog_succ = {'status':201, 'msg': 'Blog created successfully'}
@@ -10,14 +17,13 @@ def create_blog(blog_info):
     # create session object
     session = Session()
 
-    blog_info['id'] =  f.generate_random_string(16)
-    
-    b1 = blog(blog_info)
+    blog_info['id'] =  generate_random_string(16)
+    b1 = blog(**blog_info) 
     session.add(b1)
-    session.commit()
-    session.refresh(b1)
+    session.flush()
+    #session.refresh(b1)
     if b1.id == blog_info['id']:  # id created
-        return {'status' : 201, 'msg' : 'Blog created successfully', 'bid' : bid}
+        return {'status' : 201, 'msg' : 'Blog created successfully', 'bid' : b1.id}
     else:
         return {'status' : 500, 'msg' : 'Blog couldn\' t be created'}
      
@@ -30,7 +36,7 @@ def read_blogs(offset = 0):
     b = aliased(blog)
 
     #todo replace 5 by config.limit
-    result = session.query(b).order_by(desc(b.dateCreated)).slice(offset, offset + 5).all() # slice for limit and offset 
+    result = session.query(b.id, b.creator, b.headline,b.text,b.dateCreated ).order_by(desc(b.dateCreated)).slice(offset, offset + 5).all() # slice for limit and offset 
     if result:
         #list of dictionaries
         return {'status' : 200, 'msg' : 'Blogs fetched successfully', 'data': result}
@@ -57,10 +63,13 @@ def create_comment(comment_info):
     # create session object
     session = Session()
 
-    c1 = comment(comment_info)
-    session.commit()
+    c1 = comment(**comment_info) 
     session.add(c1)
-    session.refresh(c1)
+    try:
+        session.flush()
+    except exc.IntegrityError:
+        return {'status' : 404, 'msg' : 'Incorrect Blog Id'}
+    #session.refresh(c1)    
     if c1.id:
         return {'status' : 201, 'msg' : 'Comment created successfully', 'cid' : c1.id}
     else:
