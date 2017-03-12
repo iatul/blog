@@ -3,5 +3,4 @@ add
 blog.egg-info
 *.txt
 .idea
-__pycache__/
-*.logs
+__pycache__

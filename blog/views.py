@@ -15,39 +15,35 @@ from blog.utility.functions import valid_payload
 blogs = Service(name='blogs', path='/blogs', description='Blog Api')
 blogs_comments = Service(name='comments', path='/blogs/{bid}/comments',
                          description='Blog Comment Api')
-
-
-
-
+logger = logging.getLogger(__name__)
 
 @blogs.post(validators=valid_payload)
 def create_blog(request):
     """Create Blog."""
 
     params = request.matchdict
-    print params
     return {'create': 'blog'}
 
 
 @blogs.get()
 def read_blogs(request):
     """Returns Hello in JSON."""
-
-    params = request.matchdict
+    #logger.info(request)
+    params = request.GET
     if 'id' in params:
         # read_blog
-        return {'read': 'blog'}
+        return app.read_blog(params['id'])
     else:
-        # read_blogs use offset
-        return {'read': 'blogs'}
+        return app.read_blogs(params.get('offset',0))
 
 
 @blogs_comments.get()
 def read_comments(request):
-    params = request
-
-    # check bid
-    return {'read': 'comments'}
+    bid = str(request.matchdict['bid'])
+    if bid:
+        return app.read_comments(bid)
+    else:
+        return {'status':402, 'msg':'Blog id missing'}
 
 
 @blogs_comments.post(validators=valid_payload)
