@@ -5,5 +5,3 @@ blog.egg-info
 .idea
 __pycache__/
 *.logs
-README.rst
-setup.py
