@@ -27,13 +27,13 @@ def read_blogs(offset = 0):
 
     # alias
     b = aliased(blog)
-
+    offset = int(offset)
     #todo replace 5 by config.limit
     result = session.query(b).order_by(desc(b.dateCreated)).slice(offset, offset + 5).all() # slice for limit and offset 
     if result:
         #list of dictionaries
         result = process_result(result)
-        return {'status' : 200, 'msg' : 'Blogs fetched successfully', 'data': result}
+        return {'status' : 200, 'msg' : 'Blogs fetched successfully', 'data': result, 'offset': offset}
     else:
         return {'status' : 404, 'msg' : 'No Blogs found'}
 
