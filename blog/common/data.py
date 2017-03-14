@@ -1,3 +1,4 @@
 class Data:
-	blog_info = ['creator','headline','text']
-	comment_info = ['bid','creator','postion','text' ]
+    service = {'blog' : ['creator','headline','text'],
+              'comment' : ['creator','position','text']
+              }

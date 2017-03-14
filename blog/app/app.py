@@ -3,21 +3,14 @@ from sqlalchemy import desc
 from sqlalchemy.orm import aliased
 from sqlalchemy import exc
 from blog.models.basemodel import (Session, blog, comment)
-from blog.utility.functions import generate_random_string
-from bson import json_util
-import json
-
-json.dumps(anObject, default=json_util.default)
-
-def response_create_blog():
-    create_blog_succ = {'status':201, 'msg': 'Blog created successfully'}
+from blog.utility.functions import (generate_random_string, process_result)
 
 
 def create_blog(blog_info):
     # create session object
     session = Session()
 
-    blog_info['id'] =  generate_random_string(16)
+    blog_info['id'] =  generate_random_string(15)
     b1 = blog(**blog_info) 
     session.add(b1)
     session.flush()
@@ -36,12 +29,14 @@ def read_blogs(offset = 0):
     b = aliased(blog)
 
     #todo replace 5 by config.limit
-    result = session.query(b.id, b.creator, b.headline,b.text,b.dateCreated ).order_by(desc(b.dateCreated)).slice(offset, offset + 5).all() # slice for limit and offset 
+    result = session.query(b).order_by(desc(b.dateCreated)).slice(offset, offset + 5).all() # slice for limit and offset 
     if result:
         #list of dictionaries
+        result = process_result(result)
         return {'status' : 200, 'msg' : 'Blogs fetched successfully', 'data': result}
     else:
         return {'status' : 404, 'msg' : 'No Blogs found'}
+
 
 def read_blog(id = 0):
     # create session object
@@ -82,11 +77,10 @@ def read_comments(bid):
 
     # alias
     c = aliased(comment)
-
     result = session.query(c).filter(c.bid == bid).order_by(desc(c.dateCreated)).all() # slice for limit and offset 
-
     if result:
         #list of dictionaries
+        result = process_result(result)
         return {'status' : 200, 'msg' : 'Comments fetched successfully', 'data': result}
     else:
         return {'status' : 404, 'msg' : 'No Comments found'}

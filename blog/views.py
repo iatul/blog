@@ -10,20 +10,18 @@ from cornice import Service
 from pyramid.response import Response
 from blog.app import app
 from blog.utility.exceptions import BlogException
-from blog.utility.functions import valid_payload
-from bson import json_util
-import json
+from blog.utility.functions import sanitize_payload
 
-json.dumps(anObject, default=json_util.default)
 blogs = Service(name='blogs', path='/blogs', description='Blog Api')
 blogs_comments = Service(name='comments', path='/blogs/{bid}/comments',
                          description='Blog Comment Api')
 logger = logging.getLogger(__name__)
 
-@blogs.post(validators=valid_payload)
+@blogs.post()
 def create_blog(request):
     """Create Blog."""
-    return app.create_blog(request.json_body)
+    data = sanitize_payload(request,'blog')
+    return app.create_blog(data)
 
 
 @blogs.get()
@@ -33,7 +31,6 @@ def read_blogs(request):
     params = request.GET
     if 'id' in params:
         # read_blog
-        #todo dateutil
         return app.read_blog(params['id'])
     else:
         return app.read_blogs(params.get('offset',0))
@@ -48,13 +45,13 @@ def read_comments(request):
         return {'status':400, 'msg':'Blog id is missing'}
 
 
-@blogs_comments.post(validators=valid_payload)
+@blogs_comments.post()
 def create_comment(request):
-    data = request.json_body
     bid = str(request.matchdict['bid'])
+    data = sanitize_payload(request, 'comment')
     if bid:
         data['bid'] = bid
         return app.create_comment(data)
     else:
         return {'status':400, 'msg':'Blog id is missing'}
-    	
+    
