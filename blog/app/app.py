@@ -16,7 +16,7 @@ def create_blog(blog_info):
     session.flush()
     #session.refresh(b1)
     if b1.id == blog_info['id']:  # id created
-        return {'status' : 201, 'msg' : 'Blog created successfully', 'bid' : b1.id}
+        return {'status' : 201, 'msg' : 'Blog created successfully', 'bid' : b1.id, 'timeCreated':b1.timeCreated.isoformat(' ')}
     else:
         return {'status' : 500, 'msg' : 'Blog couldn\' t be created'}
      
@@ -29,7 +29,7 @@ def read_blogs(offset = 0):
     b = aliased(blog)
     offset = int(offset)
     #todo replace 5 by config.limit
-    result = session.query(b).order_by(desc(b.dateCreated)).slice(offset, offset + 5).all() # slice for limit and offset 
+    result = session.query(b).order_by(desc(b.timeCreated)).slice(offset, offset + 5).all() # slice for limit and offset 
     if result:
         #list of dictionaries
         result = process_result(result)
@@ -45,10 +45,11 @@ def read_blog(id = 0):
     # alias
     b = aliased(blog)
 
-    result = session.query(b).filter(b.id == id).order_by(desc(b.dateCreated)).first() # slice for limit and offset 
+    result = session.query(b).filter(b.id == id).order_by(desc(b.timeCreated)).first() # slice for limit and offset 
 
     if result:
         #list of dictionaries
+        result = process_result([result])
         return {'status' : 200, 'msg' : 'Blog fetched successfully', 'data': result}
     else:
         return {'status' : 404, 'msg' : 'Blog doesn\'t exist'}
@@ -77,7 +78,7 @@ def read_comments(bid):
 
     # alias
     c = aliased(comment)
-    result = session.query(c).filter(c.bid == bid).order_by(desc(c.dateCreated)).all() # slice for limit and offset 
+    result = session.query(c).filter(c.bid == bid).order_by(desc(c.timeCreated)).all() # slice for limit and offset 
     if result:
         #list of dictionaries
         result = process_result(result)

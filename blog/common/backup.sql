@@ -6,9 +6,9 @@ CREATE TABLE IF NOT EXISTS `blog` (
     `creator` VARCHAR(31) NOT NULL,
     `headline` VARCHAR(31) NOT NULL,
     `text` TEXT NOT NULL,
-    `dateCreated` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `timeCreated` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
-    INDEX (`dateCreated`)
+    INDEX (`timeCreated`)
     );
 
 
@@ -18,9 +18,9 @@ CREATE TABLE IF NOT EXISTS `comment` (
     `position` INT NOT NULL,
     `creator` VARCHAR(31) NOT NULL,
     `text` TEXT NOT NULL,
-    `dateCreated` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `timeCreated` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     FOREIGN KEY (`bid`) REFERENCES `blog`(`id`),
-    INDEX (`dateCreated`)
+    INDEX (`timeCreated`)
     );
 
